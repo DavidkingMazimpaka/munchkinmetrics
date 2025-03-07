@@ -24,15 +24,15 @@ const Header = () => {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm" : "bg-transparent"
+      scrolled ? "bg-nutriYellow/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm" : "bg-transparent"
     }`}>
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Link 
             to="/" 
-            className="text-xl font-bold text-primary flex items-center gap-2"
+            className="text-xl font-bold text-nutriGreen flex items-center gap-2"
           >
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+            <div className="w-8 h-8 rounded-full bg-nutriGreen flex items-center justify-center text-white">
               NG
             </div>
             <span className="hidden sm:inline">NutriGuard</span>
@@ -42,19 +42,19 @@ const Header = () => {
         <nav className="hidden md:flex items-center gap-6">
           <Link 
             to="/" 
-            className="text-foreground/90 hover:text-primary transition-colors"
+            className="text-foreground/90 hover:text-nutriGreen transition-colors"
           >
             Dashboard
           </Link>
           <Link 
             to="/add-measurement" 
-            className="text-foreground/90 hover:text-primary transition-colors"
+            className="text-foreground/90 hover:text-nutriGreen transition-colors"
           >
             Add Measurement
           </Link>
           <Link 
             to="/resources" 
-            className="text-foreground/90 hover:text-primary transition-colors"
+            className="text-foreground/90 hover:text-nutriGreen transition-colors"
           >
             Resources
           </Link>
