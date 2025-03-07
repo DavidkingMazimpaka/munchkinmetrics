@@ -33,9 +33,9 @@ const Header = () => {
             className="text-xl font-bold text-primary flex items-center gap-2"
           >
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-              MM
+              NG
             </div>
-            <span className="hidden sm:inline">MunchkinMetrics</span>
+            <span className="hidden sm:inline">NutriGuard</span>
           </Link>
         </div>
         

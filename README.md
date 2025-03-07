@@ -1,4 +1,7 @@
-# Welcome to your Lovable project
+
+# NutriGuard
+
+An early malnutrition detection system for children under 5 years old, designed to be intuitive for healthcare workers and parents to use, even in low-resource settings.
 
 ## Project info
 
@@ -52,7 +55,7 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with:
 
 - Vite
 - TypeScript
