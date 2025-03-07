@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import ResourceCard from "@/components/ResourceCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Wifi, WifiOff } from "lucide-react";
+import { Download, Leaf, Wifi, WifiOff } from "lucide-react";
 
 // Mock resource data
 const resources = [
@@ -57,6 +57,15 @@ const resources = [
     title: "Common Childhood Illnesses and Nutrition",
     description: "The relationship between nutrition status and common childhood illnesses.",
     category: "Health",
+    iconSrc: "/placeholder.svg",
+    link: "#",
+    offline: false,
+  },
+  {
+    id: "7",
+    title: "NOBOFA Nutrition Care Platform",
+    description: "Provider of nutrition products and awareness including young look hair & body cream, skin powder, NutriPorridge, UBUZIMA and NONOKA Tea.",
+    category: "Nutrition",
     iconSrc: "/placeholder.svg",
     link: "#",
     offline: false,
