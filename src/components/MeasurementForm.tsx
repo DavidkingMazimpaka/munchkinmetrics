@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -85,7 +84,7 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
   return (
     <Card className="animate-fadeIn w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>{childId ? "Update Measurement" : "Add New Child & Measurement"}</CardTitle>
+        <CardTitle>{childId ? "Update Measurement" : "Register New Child for Prediction"}</CardTitle>
         <CardDescription>
           Record a child's growth measurements to track their nutritional status.
         </CardDescription>
@@ -258,7 +257,7 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
             </div>
 
             <Button type="submit" className="w-full">
-              Save Measurement
+              {childId ? "Save Measurement" : "Analyze Data"}
             </Button>
           </form>
         </Form>

@@ -37,12 +37,12 @@ const AddMeasurement = () => {
         
         <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight">
-            {childId ? "Add New Measurement" : "Register New Child"}
+            {childId ? "Add New Measurement" : "Register New Child for Prediction"}
           </h1>
           <p className="text-muted-foreground mt-1">
             {childId 
               ? "Record new growth metrics for an existing child" 
-              : "Register a new child and their initial measurements"}
+              : "Register a new child and their initial measurements for analysis"}
           </p>
         </div>
         

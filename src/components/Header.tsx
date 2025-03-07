@@ -1,8 +1,9 @@
 
-import { Bell, Menu, User } from "lucide-react";
+import { Bell, Menu, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import AuthDialog from "./AuthDialog";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -30,10 +31,10 @@ const Header = () => {
         <div className="flex items-center gap-2">
           <Link 
             to="/" 
-            className="text-xl font-bold text-nutriGreen flex items-center gap-2"
+            className="text-xl font-bold text-[#7fcf5f] flex items-center gap-2"
           >
-            <div className="w-8 h-8 rounded-full bg-nutriGreen flex items-center justify-center text-white">
-              NG
+            <div className="w-8 h-8 rounded-full bg-[#7fcf5f] flex items-center justify-center text-white">
+              <Leaf className="h-4 w-4" />
             </div>
             <span className="hidden sm:inline">NutriGuard</span>
           </Link>
@@ -42,19 +43,19 @@ const Header = () => {
         <nav className="hidden md:flex items-center gap-6">
           <Link 
             to="/" 
-            className="text-foreground/90 hover:text-nutriGreen transition-colors"
+            className="text-foreground/90 hover:text-[#7fcf5f] transition-colors"
           >
             Dashboard
           </Link>
           <Link 
             to="/add-measurement" 
-            className="text-foreground/90 hover:text-nutriGreen transition-colors"
+            className="text-foreground/90 hover:text-[#7fcf5f] transition-colors"
           >
             Add Measurement
           </Link>
           <Link 
             to="/resources" 
-            className="text-foreground/90 hover:text-nutriGreen transition-colors"
+            className="text-foreground/90 hover:text-[#7fcf5f] transition-colors"
           >
             Resources
           </Link>
@@ -68,9 +69,7 @@ const Header = () => {
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
+          <AuthDialog />
         </div>
       </div>
     </header>
