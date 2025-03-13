@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -8,8 +7,8 @@ import GrowthChart from "@/components/GrowthChart";
 import AlertBanner from "@/components/AlertBanner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import NutritionGuidance from "@/components/NutritionGuidance";
 
-// Mock data for a specific child
 const mockChildData = {
   id: "3",
   name: "Maria Garcia",
@@ -228,6 +227,13 @@ const ChildProfile = () => {
           </div>
           
           <GrowthChart data={child.measurements} name={child.name} />
+          
+          <NutritionGuidance 
+            status={child.status as "normal" | "warning" | "danger"}
+            weightForAge={latestMeasurement.weightForAge}
+            heightForAge={latestMeasurement.heightForAge}
+            weightForHeight={latestMeasurement.weightForHeight}
+          />
         </div>
       </main>
     </div>
