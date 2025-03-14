@@ -1,308 +1,157 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera, CheckCircle2, Image, Upload } from "lucide-react";
-import { useCallback, useState, useRef } from "react";
+import { CalendarIcon, Camera, Upload } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useState, useRef } from "react";
 
-const formSchema = z.object({
-  childName: z.string().min(1, { message: "Child name is required" }),
-  gender: z.enum(["male", "female"]),
-  birthDate: z.string().min(1, { message: "Birth date is required" }),
-  weight: z.string().min(1, { message: "Weight is required" })
-    .refine((val) => !isNaN(parseFloat(val)), { message: "Weight must be a number" })
-    .refine((val) => parseFloat(val) > 0, { message: "Weight must be greater than 0" }),
-  height: z.string().min(1, { message: "Height is required" })
-    .refine((val) => !isNaN(parseFloat(val)), { message: "Height must be a number" })
-    .refine((val) => parseFloat(val) > 0, { message: "Height must be greater than 0" }),
-  muac: z.string().optional()
-    .refine((val) => !val || !isNaN(parseFloat(val)), { message: "MUAC must be a number" })
-    .refine((val) => !val || parseFloat(val) > 0, { message: "MUAC must be greater than 0" }),
-});
-
-interface MeasurementFormProps {
-  onSubmit?: (data: z.infer<typeof formSchema>) => void;
-  childId?: string;
-}
-
-const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
-  const [photoUploaded, setPhotoUploaded] = useState(false);
+const MeasurementForm = () => {
+  const [birthDate, setBirthDate] = React.useState<Date>();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      childName: "",
-      gender: "male",
-      birthDate: "",
-      weight: "",
-      height: "",
-      muac: "",
-    },
-  });
-
-  const handleSubmit = useCallback((data: z.infer<typeof formSchema>) => {
-    console.log("Form submitted:", data);
-    
-    // Calculate WHO z-scores would happen here in a real app
-    // This would involve comparing the child's metrics to WHO standard values
-    
-    toast.success("Measurement saved successfully!", {
-      description: "The child's growth metrics have been recorded.",
-      icon: <CheckCircle2 className="h-4 w-4" />,
-    });
-    
-    if (onSubmit) {
-      // Pass photo data along with form data
-      onSubmit({
-        ...data,
-        photo: photoPreview
-      });
-    }
-    
-    if (!childId) {
-      // Reset form if this is a new child
-      form.reset();
-      setPhotoUploaded(false);
-      setPhotoPreview(null);
-    }
-  }, [onSubmit, childId, form, photoPreview]);
-
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast.error("Please upload an image file");
-      return;
+    if (file) {
+      // Create a URL for the selected image
+      const imageUrl = URL.createObjectURL(file);
+      setPhotoPreview(imageUrl);
     }
-
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      setPhotoPreview(result);
-      setPhotoUploaded(true);
-      toast.success("Photo uploaded successfully!");
-    };
-    reader.readAsDataURL(file);
   };
-
-  const triggerFileInput = () => {
+  
+  const handleUploadClick = () => {
+    // Trigger click on the hidden file input
     fileInputRef.current?.click();
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("Data analyzed successfully!", {
+      description: "Child measurement has been recorded and analyzed."
+    });
+  };
+
   return (
-    <Card className="animate-fadeIn w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>{childId ? "Update Measurement" : "Register New Child for Prediction"}</CardTitle>
+        <CardTitle>Register New child for prediction</CardTitle>
         <CardDescription>
-          Record a child's growth measurements to track their nutritional status.
+          Enter child's details to track nutrition status
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="childName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Child's Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter child's name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="childName">Child's Name</Label>
+            <Input id="childName" placeholder="Full name" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="gender">Gender</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="birthDate">Date of Birth</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !birthDate && "text-muted-foreground"
                   )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="gender"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Gender</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="flex gap-6"
-                        >
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value="male" />
-                            </FormControl>
-                            <FormLabel className="font-normal cursor-pointer">
-                              Male
-                            </FormLabel>
-                          </FormItem>
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value="female" />
-                            </FormControl>
-                            <FormLabel className="font-normal cursor-pointer">
-                              Female
-                            </FormLabel>
-                          </FormItem>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="birthDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Birth Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Used to calculate age-appropriate growth metrics.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="weight"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Weight (kg)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="e.g., 12.5"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="height"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Height/Length (cm)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="e.g., 90.5"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="muac"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>MUAC (cm) - Optional</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="e.g., 15.2"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Mid-Upper Arm Circumference - helpful for assessing acute malnutrition.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="border rounded-lg p-4">
-              <h3 className="text-sm font-medium mb-2">Photo Upload</h3>
-              <div className="flex items-center gap-4">
-                <div 
-                  className={`w-24 h-24 rounded-lg flex items-center justify-center border-2 border-dashed ${
-                    photoUploaded ? "border-primary bg-primary/10" : "border-muted-foreground/30"
-                  } overflow-hidden`}
                 >
-                  {photoUploaded && photoPreview ? (
-                    <img 
-                      src={photoPreview} 
-                      alt="Child" 
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <Image className="h-8 w-8 text-muted-foreground/50" />
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handlePhotoUpload}
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {birthDate ? format(birthDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={birthDate}
+                  onSelect={setBirthDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="height">Height (cm)</Label>
+            <Input id="height" type="number" placeholder="Enter height" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="weight">Weight (kg)</Label>
+            <Input id="weight" type="number" placeholder="Enter weight" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="muac">Mid-Upper Arm Circumference (cm)</Label>
+            <Input id="muac" type="number" placeholder="Enter MUAC" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Child's Photo</Label>
+            <div className="flex flex-col items-center gap-4">
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+              />
+              
+              {photoPreview ? (
+                <div className="relative w-full h-40 bg-muted rounded-md overflow-hidden">
+                  <img 
+                    src={photoPreview} 
+                    alt="Child's photo preview" 
+                    className="w-full h-full object-cover"
                   />
                   <Button 
-                    type="button" 
-                    onClick={triggerFileInput}
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
+                    variant="secondary" 
+                    size="sm" 
+                    className="absolute bottom-2 right-2"
+                    onClick={handleUploadClick}
                   >
-                    <Upload className="h-4 w-4" />
-                    {photoUploaded ? "Change Photo" : "Upload Photo"}
+                    <Camera className="h-4 w-4 mr-1" /> Change
                   </Button>
-                  <p className="text-xs text-muted-foreground">
-                    Photos help track visual changes over time.
-                  </p>
                 </div>
-              </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  className="w-full h-40 flex flex-col items-center justify-center gap-2"
+                  onClick={handleUploadClick}
+                >
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <span>Upload Photo</span>
+                </Button>
+              )}
             </div>
-
-            <Button type="submit" className="w-full">
-              Analyze Data
-            </Button>
-          </form>
-        </Form>
+          </div>
+          
+          <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
+            Analyze Data
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );
