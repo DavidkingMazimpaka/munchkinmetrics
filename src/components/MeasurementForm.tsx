@@ -14,8 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera, CheckCircle2, Upload } from "lucide-react";
-import { useCallback, useState } from "react";
+import { Camera, CheckCircle2, Image, Upload } from "lucide-react";
+import { useCallback, useState, useRef } from "react";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -40,6 +40,8 @@ interface MeasurementFormProps {
 
 const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
   const [photoUploaded, setPhotoUploaded] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,20 +67,49 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
     });
     
     if (onSubmit) {
-      onSubmit(data);
+      // Pass photo data along with form data
+      onSubmit({
+        ...data,
+        photo: photoPreview
+      });
     }
     
     if (!childId) {
       // Reset form if this is a new child
       form.reset();
       setPhotoUploaded(false);
+      setPhotoPreview(null);
     }
-  }, [onSubmit, childId, form]);
+  }, [onSubmit, childId, form, photoPreview]);
 
-  const handlePhotoUpload = () => {
-    // In a real app, this would handle actual file upload
-    setPhotoUploaded(true);
-    toast.success("Photo uploaded successfully!");
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      setPhotoPreview(result);
+      setPhotoUploaded(true);
+      toast.success("Photo uploaded successfully!");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -225,23 +256,34 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
             </div>
 
             <div className="border rounded-lg p-4">
-              <h3 className="text-sm font-medium mb-2">Photo (Optional)</h3>
+              <h3 className="text-sm font-medium mb-2">Photo Upload</h3>
               <div className="flex items-center gap-4">
                 <div 
                   className={`w-24 h-24 rounded-lg flex items-center justify-center border-2 border-dashed ${
                     photoUploaded ? "border-primary bg-primary/10" : "border-muted-foreground/30"
-                  }`}
+                  } overflow-hidden`}
                 >
-                  {photoUploaded ? (
-                    <CheckCircle2 className="h-8 w-8 text-primary" />
+                  {photoUploaded && photoPreview ? (
+                    <img 
+                      src={photoPreview} 
+                      alt="Child" 
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
-                    <Camera className="h-8 w-8 text-muted-foreground/50" />
+                    <Image className="h-8 w-8 text-muted-foreground/50" />
                   )}
                 </div>
                 <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
                   <Button 
                     type="button" 
-                    onClick={handlePhotoUpload}
+                    onClick={triggerFileInput}
                     variant="outline"
                     size="sm"
                     className="gap-2"
@@ -257,7 +299,7 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
             </div>
 
             <Button type="submit" className="w-full">
-              {childId ? "Save Measurement" : "Analyze Data"}
+              Analyze Data
             </Button>
           </form>
         </Form>

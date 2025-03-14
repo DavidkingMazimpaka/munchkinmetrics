@@ -45,8 +45,13 @@ const signupSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-const AuthDialog = () => {
-  const [open, setOpen] = useState(false);
+interface AuthDialogProps {
+  initialOpen?: boolean;
+  setIsAuthenticated?: (value: boolean) => void;
+}
+
+const AuthDialog = ({ initialOpen = false, setIsAuthenticated }: AuthDialogProps) => {
+  const [open, setOpen] = useState(initialOpen);
   
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -75,6 +80,9 @@ const AuthDialog = () => {
       description: "Welcome back to NutriGuard!",
     });
     setOpen(false);
+    if (setIsAuthenticated) {
+      setIsAuthenticated(true);
+    }
   };
 
   const onSignupSubmit = (values: SignupFormValues) => {
@@ -84,138 +92,254 @@ const AuthDialog = () => {
       description: "Welcome to NutriGuard!",
     });
     setOpen(false);
+    if (setIsAuthenticated) {
+      setIsAuthenticated(true);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <LogIn className="h-5 w-5" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-[#7fcf5f] flex items-center justify-center text-white">
-              <Leaf className="h-4 w-4" />
-            </div>
-            <DialogTitle className="text-xl">NutriGuard</DialogTitle>
-          </div>
-          <DialogDescription>
-            Join our platform to track and monitor child nutrition and growth.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="login">
-            <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                <FormField
-                  control={loginForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="your@email.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={loginForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
-                  Login
-                </Button>
-              </form>
-            </Form>
-          </TabsContent>
-          
-          <TabsContent value="signup">
-            <Form {...signupForm}>
-              <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
-                <FormField
-                  control={signupForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={signupForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="your@email.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={signupForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={signupForm.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
-                  Create Account
-                </Button>
-              </form>
-            </Form>
-          </TabsContent>
-        </Tabs>
-        
-        <DialogFooter className="text-xs text-center text-muted-foreground">
-          By continuing, you agree to NutriGuard's Terms of Service and Privacy Policy.
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <>
+      {!initialOpen && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <LogIn className="h-5 w-5" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-full bg-[#7fcf5f] flex items-center justify-center text-white">
+                  <Leaf className="h-4 w-4" />
+                </div>
+                <DialogTitle className="text-xl">NutriGuard</DialogTitle>
+              </div>
+              <DialogDescription>
+                Join our platform to track and monitor child nutrition and growth.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="login">
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                    <FormField
+                      control={loginForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="your@email.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
+                      Login
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+              
+              <TabsContent value="signup">
+                <Form {...signupForm}>
+                  <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
+                    <FormField
+                      control={signupForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Your name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="your@email.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
+                      Create Account
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
+            
+            <DialogFooter className="text-xs text-center text-muted-foreground">
+              By continuing, you agree to NutriGuard's Terms of Service and Privacy Policy.
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+      
+      {initialOpen && (
+        <div className="space-y-4">
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                  <FormField
+                    control={loginForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="your@email.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
+                    Login
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+            
+            <TabsContent value="signup">
+              <Form {...signupForm}>
+                <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
+                  <FormField
+                    control={signupForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={signupForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="your@email.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={signupForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={signupForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
+                    Create Account
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
+    </>
   );
 };
 

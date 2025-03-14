@@ -9,6 +9,7 @@ import ChildProfile from "./pages/ChildProfile";
 import AddMeasurement from "./pages/AddMeasurement";
 import Resources from "./pages/Resources";
 import NotFound from "./pages/NotFound";
+import WelcomePage from "./pages/WelcomePage";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/" element={<Index />} />
           <Route path="/child/:id" element={<ChildProfile />} />
           <Route path="/add-measurement" element={<AddMeasurement />} />
