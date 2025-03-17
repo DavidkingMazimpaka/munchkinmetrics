@@ -115,11 +115,6 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="muac">Mid-Upper Arm Circumference (cm)</Label>
-            <Input id="muac" name="muac" type="number" step="0.1" placeholder="Enter MUAC" />
-          </div>
-          
-          <div className="space-y-2">
             <Label htmlFor="height_for_age_z">Height-for-age Z-score</Label>
             <Input id="height_for_age_z" name="height_for_age_z" type="number" step="0.01" placeholder="Enter Z-score or leave for calculation" />
           </div>
