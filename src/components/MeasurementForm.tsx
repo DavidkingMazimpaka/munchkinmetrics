@@ -13,9 +13,15 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useState, useRef } from "react";
 
-const MeasurementForm = () => {
+interface MeasurementFormProps {
+  onSubmit?: (data: any) => void;
+  childId?: string;
+}
+
+const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
   const [birthDate, setBirthDate] = React.useState<Date>();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [sex, setSex] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,15 +40,41 @@ const MeasurementForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Data analyzed successfully!", {
-      description: "Child measurement has been recorded and analyzed."
-    });
+    
+    // Collect form data
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Example calculation of derived fields (these would be properly calculated in a real app)
+    const height = parseFloat(data.height as string) || 0;
+    const weight = parseFloat(data.weight as string) || 0;
+    const heightInMeters = height / 100;
+    
+    // In a real application, these Z-scores would be calculated using reference data
+    // For this example, we're using placeholder calculations
+    const calculatedData = {
+      ...data,
+      Height_m: heightInMeters,
+      BMI: weight / (heightInMeters * heightInMeters),
+      WHR: weight / height,
+      height_for_age_z: Math.random() * 2 - 1, // Mock z-score between -1 and 1
+      weight_for_height_z: Math.random() * 2 - 1, // Mock z-score between -1 and 1
+      weight_for_age_z: Math.random() * 2 - 1, // Mock z-score between -1 and 1
+    };
+    
+    if (onSubmit) {
+      onSubmit(calculatedData);
+    } else {
+      toast.success("Data analyzed successfully!", {
+        description: "Child measurement has been recorded and analyzed."
+      });
+    }
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Register New child for prediction</CardTitle>
+        <CardTitle>{childId ? "Add New Measurement" : "Register New Child for Prediction"}</CardTitle>
         <CardDescription>
           Enter child's details to track nutrition status
         </CardDescription>
@@ -51,61 +83,55 @@ const MeasurementForm = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="childName">Child's Name</Label>
-            <Input id="childName" placeholder="Full name" />
+            <Input id="childName" name="childName" placeholder="Full name" />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="gender">Gender</Label>
-            <Select>
+            <Label htmlFor="sex">Sex</Label>
+            <Select name="sex" value={sex} onValueChange={setSex}>
               <SelectTrigger>
-                <SelectValue placeholder="Select gender" />
+                <SelectValue placeholder="Select sex" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
+                <SelectItem value="0">Female (0)</SelectItem>
+                <SelectItem value="1">Male (1)</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="birthDate">Date of Birth</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !birthDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {birthDate ? format(birthDate, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={birthDate}
-                  onSelect={setBirthDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <Label htmlFor="age">Age (months)</Label>
+            <Input id="age" name="age" type="number" step="0.1" placeholder="Enter age in months" />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="height">Height (cm)</Label>
-            <Input id="height" type="number" placeholder="Enter height" />
+            <Input id="height" name="height" type="number" step="0.1" placeholder="Enter height" />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="weight">Weight (kg)</Label>
-            <Input id="weight" type="number" placeholder="Enter weight" />
+            <Input id="weight" name="weight" type="number" step="0.1" placeholder="Enter weight" />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="muac">Mid-Upper Arm Circumference (cm)</Label>
-            <Input id="muac" type="number" placeholder="Enter MUAC" />
+            <Input id="muac" name="muac" type="number" step="0.1" placeholder="Enter MUAC" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="height_for_age_z">Height-for-age Z-score</Label>
+            <Input id="height_for_age_z" name="height_for_age_z" type="number" step="0.01" placeholder="Enter Z-score or leave for calculation" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="weight_for_height_z">Weight-for-height Z-score</Label>
+            <Input id="weight_for_height_z" name="weight_for_height_z" type="number" step="0.01" placeholder="Enter Z-score or leave for calculation" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="weight_for_age_z">Weight-for-age Z-score</Label>
+            <Input id="weight_for_age_z" name="weight_for_age_z" type="number" step="0.01" placeholder="Enter Z-score or leave for calculation" />
           </div>
           
           <div className="space-y-2">
@@ -113,6 +139,7 @@ const MeasurementForm = () => {
             <div className="flex flex-col items-center gap-4">
               <input 
                 type="file" 
+                name="photo"
                 accept="image/*" 
                 className="hidden" 
                 ref={fileInputRef}
@@ -131,6 +158,7 @@ const MeasurementForm = () => {
                     size="sm" 
                     className="absolute bottom-2 right-2"
                     onClick={handleUploadClick}
+                    type="button"
                   >
                     <Camera className="h-4 w-4 mr-1" /> Change
                   </Button>
@@ -140,6 +168,7 @@ const MeasurementForm = () => {
                   variant="outline" 
                   className="w-full h-40 flex flex-col items-center justify-center gap-2"
                   onClick={handleUploadClick}
+                  type="button"
                 >
                   <Upload className="h-8 w-8 text-muted-foreground" />
                   <span>Upload Photo</span>
@@ -149,7 +178,7 @@ const MeasurementForm = () => {
           </div>
           
           <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
-            Analyze Data
+            {childId ? "Save Measurement" : "Analyze Data"}
           </Button>
         </form>
       </CardContent>

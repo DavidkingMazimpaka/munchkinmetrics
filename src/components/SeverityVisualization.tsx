@@ -110,8 +110,7 @@ export const SeverityVisualization = ({
               </div>
               <Progress 
                 value={severityPercentage} 
-                className="h-8" 
-                indicatorClassName={progressColor}
+                className={`h-8 ${progressColor}`}
               />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
