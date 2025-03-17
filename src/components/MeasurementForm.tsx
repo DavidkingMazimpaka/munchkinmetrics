@@ -5,13 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarIcon, Camera, Upload } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { Camera, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { useState, useRef } from "react";
+import { api, MeasurementData } from "@/lib/api";
 
 interface MeasurementFormProps {
   onSubmit?: (data: any) => void;
@@ -19,9 +16,9 @@ interface MeasurementFormProps {
 }
 
 const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
-  const [birthDate, setBirthDate] = React.useState<Date>();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [sex, setSex] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,36 +35,67 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    // Collect form data
-    const formData = new FormData(e.target as HTMLFormElement);
-    const data = Object.fromEntries(formData.entries());
-    
-    // Example calculation of derived fields (these would be properly calculated in a real app)
-    const height = parseFloat(data.height as string) || 0;
-    const weight = parseFloat(data.weight as string) || 0;
-    const heightInMeters = height / 100;
-    
-    // In a real application, these Z-scores would be calculated using reference data
-    // For this example, we're using placeholder calculations
-    const calculatedData = {
-      ...data,
-      Height_m: heightInMeters,
-      BMI: weight / (heightInMeters * heightInMeters),
-      WHR: weight / height,
-      height_for_age_z: Math.random() * 2 - 1, // Mock z-score between -1 and 1
-      weight_for_height_z: Math.random() * 2 - 1, // Mock z-score between -1 and 1
-      weight_for_age_z: Math.random() * 2 - 1, // Mock z-score between -1 and 1
-    };
-    
-    if (onSubmit) {
-      onSubmit(calculatedData);
-    } else {
-      toast.success("Data analyzed successfully!", {
-        description: "Child measurement has been recorded and analyzed."
+    try {
+      // Collect form data
+      const formData = new FormData(e.target as HTMLFormElement);
+      const formValues = Object.fromEntries(formData.entries());
+      
+      // Parse numeric values
+      const height = parseFloat(formValues.height as string) || 0;
+      const weight = parseFloat(formValues.weight as string) || 0;
+      const heightInMeters = height / 100;
+      
+      // Process measurement data
+      const measurementData: MeasurementData = {
+        childName: formValues.childName as string,
+        sex: formValues.sex as string,
+        age: parseFloat(formValues.age as string) || 0,
+        height,
+        weight,
+        height_for_age_z: parseFloat(formValues.height_for_age_z as string) || 0,
+        weight_for_height_z: parseFloat(formValues.weight_for_height_z as string) || 0,
+        weight_for_age_z: parseFloat(formValues.weight_for_age_z as string) || 0,
+        Height_m: heightInMeters,
+        BMI: weight / (heightInMeters * heightInMeters),
+        WHR: weight / height,
+        photoUrl: photoPreview || undefined
+      };
+      
+      let response;
+      
+      // Submit data to API
+      if (childId) {
+        // Add measurement for existing child
+        response = await api.addMeasurementForChild(childId, measurementData);
+        toast.success("Measurement added successfully!", {
+          description: "New child measurement has been recorded."
+        });
+      } else {
+        // Submit data for new child
+        response = await api.submitMeasurement(measurementData);
+        
+        // Analyze the data
+        const analysis = await api.analyzeMeasurements(measurementData);
+        
+        toast.success("Data analyzed successfully!", {
+          description: "Child measurement has been recorded and analyzed."
+        });
+      }
+      
+      if (onSubmit) {
+        onSubmit(measurementData);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("Failed to process measurement data", {
+        description: error instanceof Error ? error.message : "An unexpected error occurred"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -172,8 +200,12 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
             </div>
           </div>
           
-          <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]">
-            {childId ? "Save Measurement" : "Analyze Data"}
+          <Button 
+            type="submit" 
+            className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]"
+            disabled={isLoading}
+          >
+            {isLoading ? "Processing..." : childId ? "Save Measurement" : "Analyze Data"}
           </Button>
         </form>
       </CardContent>
