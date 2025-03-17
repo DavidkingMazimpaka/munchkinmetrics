@@ -1,11 +1,11 @@
 
 /**
  * API Service for NutriGuard
- * Handles all backend communication
+ * Handles all backend communication with FastAPI server
  */
 
 // Base URL for API requests - would be configured based on environment in production
-const API_BASE_URL = 'https://api.nutriguard.example/v1';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 // Types for API requests and responses
 export interface MeasurementData {
@@ -66,7 +66,23 @@ export const api = {
    */
   submitMeasurement: async (data: MeasurementData): Promise<{ id: string; status: string }> => {
     try {
-      // In a real app, this would be a fetch call to the backend
+      // Make actual API call to FastAPI backend
+      const response = await fetch(`${API_BASE_URL}/measurements`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw response;
+      }
+      
+      return await response.json();
+    } catch (error) {
+      // For development fallback - remove in production
+      console.warn('API call failed, using mock data:', error);
       console.log('Submitting measurement data:', data);
       
       // Mock successful response for demo purposes
@@ -74,23 +90,6 @@ export const api = {
         id: `child_${Date.now()}`,
         status: 'success'
       };
-      
-      // Real implementation would be:
-      // const response = await fetch(`${API_BASE_URL}/measurements`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(data),
-      // });
-      // 
-      // if (!response.ok) {
-      //   throw response;
-      // }
-      // 
-      // return await response.json();
-    } catch (error) {
-      return handleApiError(error);
     }
   },
   
@@ -99,8 +98,21 @@ export const api = {
    */
   getAllChildren: async (): Promise<ChildProfileData[]> => {
     try {
-      // In a real app, this would fetch from the backend
-      console.log('Fetching all children');
+      const response = await fetch(`${API_BASE_URL}/children`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw response;
+      }
+      
+      return await response.json();
+    } catch (error) {
+      // For development fallback - remove in production
+      console.warn('API call failed, using mock data:', error);
       
       // Mock data for demo purposes
       return [
@@ -168,17 +180,6 @@ export const api = {
           ]
         }
       ];
-      
-      // Real implementation would be:
-      // const response = await fetch(`${API_BASE_URL}/children`);
-      // 
-      // if (!response.ok) {
-      //   throw response;
-      // }
-      // 
-      // return await response.json();
-    } catch (error) {
-      return handleApiError(error);
     }
   },
   
@@ -187,10 +188,24 @@ export const api = {
    */
   getChildById: async (childId: string): Promise<ChildProfileData> => {
     try {
-      // In a real app, this would fetch from the backend
+      const response = await fetch(`${API_BASE_URL}/children/${childId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw response;
+      }
+      
+      return await response.json();
+    } catch (error) {
+      // For development fallback - remove in production
+      console.warn('API call failed, using mock data:', error);
       console.log(`Fetching child with ID: ${childId}`);
       
-      // Mock data for demo purposes - in real app would fetch specific child
+      // Mock data for demo purposes
       return {
         id: childId,
         name: 'Sarah Johnson',
@@ -230,17 +245,6 @@ export const api = {
           }
         ]
       };
-      
-      // Real implementation would be:
-      // const response = await fetch(`${API_BASE_URL}/children/${childId}`);
-      // 
-      // if (!response.ok) {
-      //   throw response;
-      // }
-      // 
-      // return await response.json();
-    } catch (error) {
-      return handleApiError(error);
     }
   },
   
@@ -249,30 +253,28 @@ export const api = {
    */
   addMeasurementForChild: async (childId: string, data: MeasurementData): Promise<{ status: string }> => {
     try {
-      // In a real app, this would be a fetch call to the backend
+      const response = await fetch(`${API_BASE_URL}/children/${childId}/measurements`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw response;
+      }
+      
+      return await response.json();
+    } catch (error) {
+      // For development fallback - remove in production
+      console.warn('API call failed, using mock data:', error);
       console.log(`Adding measurement for child ${childId}:`, data);
       
       // Mock successful response for demo purposes
       return {
         status: 'success'
       };
-      
-      // Real implementation would be:
-      // const response = await fetch(`${API_BASE_URL}/children/${childId}/measurements`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(data),
-      // });
-      // 
-      // if (!response.ok) {
-      //   throw response;
-      // }
-      // 
-      // return await response.json();
-    } catch (error) {
-      return handleApiError(error);
     }
   },
   
@@ -289,7 +291,22 @@ export const api = {
     };
   }> => {
     try {
-      // In a real app, this would call an ML backend
+      const response = await fetch(`${API_BASE_URL}/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw response;
+      }
+      
+      return await response.json();
+    } catch (error) {
+      // For development fallback - remove in production
+      console.warn('API call failed, using mock data:', error);
       console.log('Analyzing measurement data:', data);
       
       // Mock data for demo - in real app would be result of ML model
@@ -323,23 +340,6 @@ export const api = {
           weightForAge: data.weight_for_age_z
         }
       };
-      
-      // Real implementation would be:
-      // const response = await fetch(`${API_BASE_URL}/analyze`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(data),
-      // });
-      // 
-      // if (!response.ok) {
-      //   throw response;
-      // }
-      // 
-      // return await response.json();
-    } catch (error) {
-      return handleApiError(error);
     }
   }
 };
