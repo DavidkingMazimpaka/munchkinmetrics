@@ -4,15 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, ExternalLink } from "lucide-react";
 
-interface ResourceCardProps {
-  title: string;
-  description: string;
-  category: string;
-  iconSrc: string;
-  link: string;
-  offline?: boolean;
-}
-
 const ResourceCard = ({
   title,
   description,
@@ -20,7 +11,7 @@ const ResourceCard = ({
   iconSrc,
   link,
   offline
-}: ResourceCardProps) => {
+}) => {
   return (
     <Card className="overflow-hidden card-hover h-full flex flex-col animate-fadeIn">
       <CardHeader className="pb-2">

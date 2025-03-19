@@ -5,19 +5,10 @@ import { Progress } from "@/components/ui/progress";
 import { ChartContainer, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { CheckCircle, AlertCircle, AlertTriangle, XCircle } from "lucide-react";
 
-interface SeverityVisualizationProps {
-  classification: "low" | "moderate" | "high" | "critical";
-  zScores: {
-    weightForAge: number;
-    heightForAge: number;
-    weightForHeight: number;
-  };
-}
-
 export const SeverityVisualization = ({
   classification,
   zScores,
-}: SeverityVisualizationProps) => {
+}) => {
   // Determine severity percentage based on classification
   const getSeverityPercentage = () => {
     switch (classification) {
@@ -163,3 +154,5 @@ export const SeverityVisualization = ({
     </Card>
   );
 };
+
+export default SeverityVisualization;

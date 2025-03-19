@@ -25,14 +25,8 @@ const signupSchema = z.object({
   path: ["confirmPassword"],
 });
 
-export type SignupFormValues = z.infer<typeof signupSchema>;
-
-interface SignupFormProps {
-  onSuccess: (values: SignupFormValues) => void;
-}
-
-const SignupForm = ({ onSuccess }: SignupFormProps) => {
-  const form = useForm<SignupFormValues>({
+const SignupForm = ({ onSuccess }) => {
+  const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       name: "",
@@ -42,7 +36,7 @@ const SignupForm = ({ onSuccess }: SignupFormProps) => {
     },
   });
 
-  const onSubmit = (values: SignupFormValues) => {
+  const onSubmit = (values) => {
     console.log("Signup values:", values);
     toast.success("Account created successfully!", {
       description: "Welcome to NutriGuard!",

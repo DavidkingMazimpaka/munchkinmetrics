@@ -6,19 +6,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { MapPin } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-interface NutritionGuidanceProps {
-  status: "normal" | "warning" | "danger";
-  weightForAge: number;
-  heightForAge: number;
-  weightForHeight: number;
-}
-
 const NutritionGuidance = ({
   status,
   weightForAge,
   heightForAge,
   weightForHeight,
-}: NutritionGuidanceProps) => {
+}) => {
   const getNutritionCategory = () => {
     if (status === "danger") {
       return "Severe Malnutrition";

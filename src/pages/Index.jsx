@@ -9,12 +9,12 @@ import AlertBanner from "@/components/AlertBanner";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import api, { ChildProfileData } from "@/lib/api";
+import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState("grid");
   
   // Fetch children data using React Query
   const { data: children = [], isLoading, error } = useQuery({
@@ -96,7 +96,7 @@ const Dashboard = () => {
             Showing {filteredChildren.length} {filteredChildren.length === 1 ? "child" : "children"}
           </div>
           
-          <Tabs defaultValue="grid" value={viewMode} onValueChange={(v) => setViewMode(v as "grid" | "list")}>
+          <Tabs defaultValue="grid" value={viewMode} onValueChange={(v) => setViewMode(v)}>
             <TabsList className="grid w-[160px] grid-cols-2">
               <TabsTrigger value="grid" className="flex items-center gap-1">
                 <LayoutGrid className="h-4 w-4" />

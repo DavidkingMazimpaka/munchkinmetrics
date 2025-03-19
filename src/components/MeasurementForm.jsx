@@ -8,20 +8,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Camera, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
-import { api, MeasurementData } from "@/lib/api";
+import { api } from "@/lib/api";
 
-interface MeasurementFormProps {
-  onSubmit?: (data: any) => void;
-  childId?: string;
-}
-
-const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [sex, setSex] = useState<string>("");
+const MeasurementForm = ({ onSubmit, childId }) => {
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [sex, setSex] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef(null);
   
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event) => {
     const file = event.target.files?.[0];
     if (file) {
       // Create a URL for the selected image
@@ -35,30 +30,30 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
       // Collect form data
-      const formData = new FormData(e.target as HTMLFormElement);
+      const formData = new FormData(e.target);
       const formValues = Object.fromEntries(formData.entries());
       
       // Parse numeric values
-      const height = parseFloat(formValues.height as string) || 0;
-      const weight = parseFloat(formValues.weight as string) || 0;
+      const height = parseFloat(formValues.height) || 0;
+      const weight = parseFloat(formValues.weight) || 0;
       const heightInMeters = height / 100;
       
       // Process measurement data
-      const measurementData: MeasurementData = {
-        childName: formValues.childName as string,
-        sex: formValues.sex as string,
-        age: parseFloat(formValues.age as string) || 0,
+      const measurementData = {
+        childName: formValues.childName,
+        sex: formValues.sex,
+        age: parseFloat(formValues.age) || 0,
         height,
         weight,
-        height_for_age_z: parseFloat(formValues.height_for_age_z as string) || 0,
-        weight_for_height_z: parseFloat(formValues.weight_for_height_z as string) || 0,
-        weight_for_age_z: parseFloat(formValues.weight_for_age_z as string) || 0,
+        height_for_age_z: parseFloat(formValues.height_for_age_z) || 0,
+        weight_for_height_z: parseFloat(formValues.weight_for_height_z) || 0,
+        weight_for_age_z: parseFloat(formValues.weight_for_age_z) || 0,
         Height_m: heightInMeters,
         BMI: weight / (heightInMeters * heightInMeters),
         WHR: weight / height,

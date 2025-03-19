@@ -1,14 +1,11 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, AlertTriangle, MapPin } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 
-interface RecommendedActionsProps {
-  classification: "low" | "moderate" | "high" | "critical";
-}
-
-export const RecommendedActions = ({ classification }: RecommendedActionsProps) => {
+export const RecommendedActions = ({ classification }) => {
   const getRecommendations = () => {
     switch (classification) {
       case "low":
@@ -161,3 +158,5 @@ export const RecommendedActions = ({ classification }: RecommendedActionsProps) 
     </Card>
   );
 };
+
+export default RecommendedActions;

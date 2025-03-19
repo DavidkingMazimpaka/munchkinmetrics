@@ -1,6 +1,6 @@
 
 import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
+import App from './App.jsx';
 import './index.css';
 
 // Redirect to welcome page if first visit and not already on welcome page
@@ -9,4 +9,4 @@ if (!localStorage.getItem('hasVisited') && !window.location.pathname.includes('/
   window.location.href = '/welcome';
 } 
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")).render(<App />);
