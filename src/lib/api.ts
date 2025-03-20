@@ -10,7 +10,7 @@ const API_BASE_URL = 'http://localhost:8000/api';
 // Types for API requests and responses
 export interface MeasurementData {
   childName: string;
-  sex: string;
+  sex: number;
   age: number;
   height: number;
   weight: number;
@@ -47,14 +47,21 @@ export interface MeasurementHistory {
 }
 
 // Error handling helper
-const handleApiError = (error: unknown): never => {
-  console.error('API Error:', error);
-  
-  if (error instanceof Response) {
-    throw new Error(`API error: ${error.status} ${error.statusText}`);
+const handleApiError = async (response) => {
+  if (!response.ok) {
+    // Try to parse the error response
+    let errorText = `API error: ${response.status} ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.detail) {
+        errorText = `API error: ${errorData.detail}`;
+      }
+    } catch (e) {
+      // If we can't parse the JSON, just use the status text
+    }
+    throw new Error(errorText);
   }
-  
-  throw new Error('Network error or unexpected API failure');
+  return response;
 };
 
 /**
@@ -64,8 +71,10 @@ export const api = {
   /**
    * Submit new child measurement data
    */
-  submitMeasurement: async (data: MeasurementData): Promise<{ id: string; status: string }> => {
+  submitMeasurement: async (data) => {
     try {
+      console.log("Submitting measurement data to API:", data);
+      
       // Make actual API call to FastAPI backend
       const response = await fetch(`${API_BASE_URL}/measurements`, {
         method: 'POST',
@@ -75,15 +84,17 @@ export const api = {
         body: JSON.stringify(data),
       });
       
-      if (!response.ok) {
-        throw response;
-      }
-      
+      await handleApiError(response);
       return await response.json();
     } catch (error) {
       // For development fallback - remove in production
       console.warn('API call failed, using mock data:', error);
       console.log('Submitting measurement data:', data);
+      
+      // If this is a real error from the API, don't use the mock data
+      if (error.message.includes('API error:')) {
+        throw error;
+      }
       
       // Mock successful response for demo purposes
       return {
@@ -96,7 +107,7 @@ export const api = {
   /**
    * Get all children profiles for dashboard
    */
-  getAllChildren: async (): Promise<ChildProfileData[]> => {
+  getAllChildren: async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/children`, {
         method: 'GET',
@@ -105,14 +116,16 @@ export const api = {
         },
       });
       
-      if (!response.ok) {
-        throw response;
-      }
-      
+      await handleApiError(response);
       return await response.json();
     } catch (error) {
       // For development fallback - remove in production
       console.warn('API call failed, using mock data:', error);
+      
+      // If this is a real error from the API, don't use the mock data
+      if (error.message.includes('API error:')) {
+        throw error;
+      }
       
       // Mock data for demo purposes
       return [
@@ -186,7 +199,7 @@ export const api = {
   /**
    * Get single child profile by ID
    */
-  getChildById: async (childId: string): Promise<ChildProfileData> => {
+  getChildById: async (childId) => {
     try {
       const response = await fetch(`${API_BASE_URL}/children/${childId}`, {
         method: 'GET',
@@ -195,15 +208,17 @@ export const api = {
         },
       });
       
-      if (!response.ok) {
-        throw response;
-      }
-      
+      await handleApiError(response);
       return await response.json();
     } catch (error) {
       // For development fallback - remove in production
       console.warn('API call failed, using mock data:', error);
       console.log(`Fetching child with ID: ${childId}`);
+      
+      // If this is a real error from the API, don't use the mock data
+      if (error.message.includes('API error:')) {
+        throw error;
+      }
       
       // Mock data for demo purposes
       return {
@@ -251,8 +266,10 @@ export const api = {
   /**
    * Add new measurement for existing child
    */
-  addMeasurementForChild: async (childId: string, data: MeasurementData): Promise<{ status: string }> => {
+  addMeasurementForChild: async (childId, data) => {
     try {
+      console.log(`Adding measurement for child ${childId} to API:`, data);
+      
       const response = await fetch(`${API_BASE_URL}/children/${childId}/measurements`, {
         method: 'POST',
         headers: {
@@ -261,15 +278,17 @@ export const api = {
         body: JSON.stringify(data),
       });
       
-      if (!response.ok) {
-        throw response;
-      }
-      
+      await handleApiError(response);
       return await response.json();
     } catch (error) {
       // For development fallback - remove in production
       console.warn('API call failed, using mock data:', error);
       console.log(`Adding measurement for child ${childId}:`, data);
+      
+      // If this is a real error from the API, don't use the mock data
+      if (error.message.includes('API error:')) {
+        throw error;
+      }
       
       // Mock successful response for demo purposes
       return {
@@ -281,16 +300,10 @@ export const api = {
   /**
    * Analyze child measurement data for malnutrition prediction
    */
-  analyzeMeasurements: async (data: MeasurementData): Promise<{
-    classification: "low" | "moderate" | "high" | "critical";
-    probability: number;
-    zScores: {
-      heightForAge: number;
-      weightForHeight: number;
-      weightForAge: number;
-    };
-  }> => {
+  analyzeMeasurements: async (data) => {
     try {
+      console.log('Analyzing measurement data via API:', data);
+      
       const response = await fetch(`${API_BASE_URL}/analyze`, {
         method: 'POST',
         headers: {
@@ -299,15 +312,17 @@ export const api = {
         body: JSON.stringify(data),
       });
       
-      if (!response.ok) {
-        throw response;
-      }
-      
+      await handleApiError(response);
       return await response.json();
     } catch (error) {
       // For development fallback - remove in production
       console.warn('API call failed, using mock data:', error);
       console.log('Analyzing measurement data:', data);
+      
+      // If this is a real error from the API, don't use the mock data
+      if (error.message.includes('API error:')) {
+        throw error;
+      }
       
       // Mock data for demo - in real app would be result of ML model
       // Here we're using the z-scores to determine classification
@@ -317,7 +332,7 @@ export const api = {
         data.weight_for_age_z
       ) / 3;
       
-      let classification: "low" | "moderate" | "high" | "critical" = "low";
+      let classification = "low";
       let probability = 0.1;
       
       if (avgZScore < -2) {
